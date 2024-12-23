@@ -27,7 +27,7 @@ It's often used in microservices architectures, where multiple services need to 
 * **Using Docker:**
 
   ```bash
-  bashdocker run -p 8080:8080 devopsfaith/krakend run -c /etc/krakend/krakend.json
+  docker run -p 8080:8080 devopsfaith/krakend run -c /etc/krakend/krakend.json
   ```
 
 * **Using Binary (for Linux/MacOS):** Download the binary from [KrakenD official website]().
@@ -39,7 +39,7 @@ KrakenD is configured via a JSON file where you define your endpoints, backends 
 Example of a simple configuration (krakend.json):
 
 ```json
-json{
+{
   "version": 3,
   "endpoints": [
     {
@@ -80,7 +80,7 @@ json{
 Run KrakenD with the configuration file:
 
 ```bash
-bashkrakend run -c krakend.json
+krakend run -c krakend.json
 ```
 
 ### 4\. **Integrate Authentication (JWT)**
@@ -88,7 +88,7 @@ bashkrakend run -c krakend.json
 You can add JWT authentication to secure your endpoints. Here’s an example with a JWT token validation in the config:
 
 ```json
-json{
+{
   "extra_config": {
     "github.com/devopsfaith/krakend-jose/validator": {
       "alg": "HS256",
@@ -104,7 +104,7 @@ json{
 Implement rate limiting to protect your services from being overwhelmed by too many requests:
 
 ```json
-json{
+{
   "extra_config": {
     "github.com/devopsfaith/krakend-ratelimit/juju/proxy": {
       "maxRate": 5,
@@ -119,7 +119,7 @@ json{
 You can aggregate multiple requests from different microservices into one response:
 
 ```json
-json{
+{
   "endpoint": "/api/v1/dashboard",
   "backend": [
     {
@@ -139,7 +139,7 @@ json{
 Integrate Prometheus or other monitoring tools by enabling monitoring in the configuration:
 
 ```json
-json{
+{
   "extra_config": {
     "telemetry": {
       "metrics": {
@@ -167,7 +167,7 @@ The core of KrakenD configuration is the JSON file, typically named `krakend.jso
 Here's an expanded version of the configuration file structure:
 
 ```json
-json{
+{
   "version": 3,  // Configuration version
   "name": "My API Gateway",  // The name of your API gateway instance
   "port": 8080,  // The port KrakenD listens on
@@ -239,7 +239,7 @@ json{
 A typical KrakenD project will have the following folder and file structure:
 
 ```bash
-bash/krakend-gateway/
+/krakend-gateway/
 ├── config/                      # Contains configuration files
 │   ├── krakend.json              # Main KrakenD configuration file
 │   └── other-config.json         # Optional config for specific modules (e.g., auth)
@@ -261,7 +261,7 @@ You can aggregate multiple backend services under a single API endpoint. This al
 Example:
 
 ```json
-json{
+{
   "endpoint": "/api/v1/aggregated",
   "method": "GET",
   "output_encoding": "json",
@@ -287,7 +287,7 @@ In this case, `/api/v1/aggregated` will send requests to `/users` on `microservi
 To add rate limiting to protect your microservices, use the `rate-limit` module in the extra\_config section:
 
 ```json
-json{
+{
   "extra_config": {
     "github.com/devopsfaith/krakend-ratelimit/juju/proxy": {
       "maxRate": 10,   // Maximum 10 requests per second
@@ -302,7 +302,7 @@ json{
 KrakenD can enforce authentication with JWTs to secure your API. You need to define this in the `extra_config` section:
 
 ```json
-json{
+{
   "extra_config": {
     "github.com/devopsfaith/krakend-jose/validator": {
       "alg": "HS256",
@@ -319,7 +319,7 @@ json{
 To reduce the load on your microservices, you can enable response caching:
 
 ```json
-json{
+{
   "extra_config": {
     "github.com/devopsfaith/krakend-httpcache": {
       "shared": true,
@@ -343,7 +343,7 @@ ENTRYPOINT ["krakend", "run", "-c", "/etc/krakend/krakend.json"]
 Then, build and run the Docker container:
 
 ```bash
-bashdocker build -t krakend-gateway .
+docker build -t krakend-gateway .
 docker run -p 8080:8080 krakend-gateway
 ```
 
@@ -367,7 +367,7 @@ docker run -p 8080:8080 krakend-gateway
 **Example**: A partial file (`partials/users.json`) might look like this:
 
 ```json
-json{
+{
   "backend": [
     {
       "host": ["http://microservice1:8080"],
@@ -381,7 +381,7 @@ json{
 Then, in the main `krakend.json` file, you can include it:
 
 ```json
-json{
+{
   "$ref": "partials/users.json"
 }
 ```
@@ -394,7 +394,7 @@ json{
 **Example**: You might have a settings file (`settings/global.json`) for global parameters:
 
 ```json
-json{
+{
   "timeout": "3000ms",
   "cache_ttl": "600s"
 }
@@ -410,7 +410,7 @@ This setting can be included in multiple places in the `krakend.json` file.
 **Example**: Suppose you have a template file (`templates/backend.tmpl`) that contains:
 
 ```json
-json{
+{
   "host": ["{{ .Host }}"],
   "url_pattern": "{{ .UrlPattern }}",
   "encoding": "json"
@@ -420,7 +420,7 @@ json{
 In the main `krakend.json`, you can reference this template and pass in the values for the variables:
 
 ```json
-json{
+{
   "backend": [
     {
       "$ref": "templates/backend.tmpl",
@@ -439,7 +439,7 @@ json{
 **Example of a `.tmpl` File**:
 
 ```json
-json{
+{
   "url_pattern": "{{ .UrlPattern }}",
   "host": ["{{ .Host }}"],
   "method": "{{ .Method }}",
@@ -450,7 +450,7 @@ json{
 When you include this template in your `krakend.json`, you pass the specific values like this:
 
 ```json
-json{
+{
   "$ref": "templates/backend.tmpl",
   "UrlPattern": "/products",
   "Host": "http://microservice2:8080",
@@ -467,7 +467,7 @@ json{
 ### Folder Structure Example:
 
 ```bash
-bash/krakend-gateway/
+/krakend-gateway/
 ├── config/
 │   ├── krakend.json              # Main KrakenD configuration file
 │   ├── partials/                 # Reusable configuration blocks
